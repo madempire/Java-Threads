@@ -13,4 +13,4 @@
     * Communication and context-switching between two threads is less expensive as compared to process.
     * Thread are also called lightweight task.
 ## Thread Life Cycle:-
-![Thread Life Cycle](image.png)
+![Thread Life Cycle](image-1.png)
