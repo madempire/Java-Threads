@@ -154,3 +154,97 @@ Ex:-public class DaemonThread {
     * Thread Pool has to be ended explicitly at the end. If this is not done, then the program goes on 
     executing and never ends. Call shutdown() on the pool to end the executor.
 ![alt text](image-2.png)
+#### Note:-
+    * Deadlock:- All the executing threads are waiting for the results from the blocked threads waiting in the queue due to the unavailability of threads for execution. Sol - Don’t queue tasks that concurrently wait for results from other tasks
+    * Thread Leakage :- Thread Leakage occurs if a thread is removed from the pool to execute a task but not returned to it when the task completed. As an example, if the thread throws an exception and pool class does not catch this exception, then the thread will simply exit, reducing the size of the thread pool by one. If this repeats many times, then the pool would eventually become empty and no threads would be available to execute other requests.
+    * Resource Thrashing :- If the thread pool size is very large then time is wasted in context switching between threads. Having more threads than the optimal number may cause starvation problem leading to resource thrashing as explained
+## 8. Synchronized:-
+    * Synchronization in Java is the capability to control the access of multiple threads to any shared 
+    resource. To prevent thread interference & prevent consistency problem.
+    * only one thread can access the resource at a given point in time. This synchronization is 
+    implemented in Java with a concept called monitors. Only one thread can own a monitor at a 
+    given time. When a thread acquires a lock, it is said to have entered the monitor. All other 
+    threads attempting to enter the locked monitor will be suspended until the first thread exits 
+    the monitor.
+    * Cooperation (Inter-thread communication) is a mechanism in which a thread is paused running 
+    in its critical section and another thread is allowed to enter (or lock) in the same critical section 
+    to be executed. It is implemented by following methods of Object class(because they are 
+    related to lock and object has a lock.)
+### 8.1 Synchronized Instance Method:-
+    Ex:- 1.1 Instance Methods
+    public synchronized void increment() {
+        // implicit lock on 'this'
+        count++;
+    }
+    * Lock Object: the current instance (this).
+    * Scope: the entire method body.
+    * Behavior: when one thread is executing any synchronized instance method on a given object, no other thread can execute any synchronized instance method on that same object.
+    * Use Case: simple, coarse-grained locking when the entire method must be mutually exclusive.
+### 8.2 Synchronized static Method:-
+    Ex:-
+    public static synchronized void updateGlobal() {
+        // lock on Class object
+        total++;
+    }
+    * Lock Object: the Class object (e.g., MyClass.class).
+    * Scope: the entire static method.
+    * Behavior: serializes access across all threads calling that static method (or any other synchronized static method in the same class).
+    * Use Case: protecting shared static state.
+### 8.3 Synchronized block:-
+    Ex:-
+    public void printDoc(String name) {
+        // unsynchronized work
+        synchronized(lockObject) {
+            // critical section
+        }
+        // unsynchronized work
+    }
+    Custom Lock Objects
+    * Lock Object: any reference (lockObject) you choose—often a private final field.
+    * Scope: only the code within the { … } block.
+    * Behavior: threads must acquire the specified object’s monitor before entering the block.
+    * Advantages:
+        Fine-grained control: only lock what you need, reducing contention.
+        Multiple locks: you can have separate locks for different resources or phases, enabling higher concurrency.
+
+    Locking on this or Class
+    * You can also write synchronized(this) { … } or synchronized(MyClass.class) { … }.
+    * Caution: locking on publicly accessible objects (like this) can invite unintended interference (lock poisoning) if external code also synchronizes on the same object.
+## 9. Volatile :-
+    * The volatile keyword in Java is a variable modifier used to ensure visibility of variable modifications across multiple threads in a multithreaded environment. When a variable is declared as volatile, it signals to the Java Virtual Machine (JVM) and the compiler that this variable's value can be changed by multiple threads concurrently, and therefore, its value should always be read from and written directly to the main memory, bypassing the thread's local cache. 
+#### Key aspects of volatile:
+    * Visibility:
+        The primary purpose of volatile is to ensure that any changes made to a volatile variable by one thread are immediately visible to other threads. Without volatile, a thread might read a stale value from its local cache, leading to memory consistency errors. 
+    * No Caching:
+        volatile prevents threads from caching the variable's value locally. Instead, all reads and writes go directly to the main memory, ensuring that all threads always see the most up-to-date value.
+    * Not for Atomicity of Compound Operations:
+        While volatile ensures visibility for individual reads and writes, it does not guarantee atomicity for compound operations (e.g., incrementing a variable: i++). Such operations involve multiple steps (read, modify, write) and are not inherently atomic with volatile. For atomicity in these cases, other synchronization mechanisms like synchronized blocks or java.util.concurrent.atomic classes are required.
+    * Use Cases:
+        volatile is suitable for simple variables where the main concern is ensuring visibility, such as flags for controlling thread termination or simple counters where only one thread writes and others read, or where writes are atomic and independent of previous values.
+    Ex:- 
+    public class VolatileExample {
+    private static volatile boolean running = true;
+
+    public static void main(String[] args) {
+        new Thread(() -> {
+            while (running) {
+                // Do some work
+            }
+            System.out.println("Worker thread stopped.");
+        }).start();
+
+        try {
+            Thread.sleep(1000); // Simulate some time
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        running = false; // Change the volatile variable, visible to other thread
+        System.out.println("Main thread set running to false.");
+        }
+    }
+## wait, notify on thread:-
+![alt text](image-3.png)
+
+
+
